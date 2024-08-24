@@ -75,7 +75,7 @@ psutil = "5.9.8"
 
 Werkzeug = "3.0.3"
 packaging = "23.1"
-setuptools = "70.0.0"
+setuptools = "73.0.1"
 # command line config manipulation
 crudini = "0.9.4"
 python-dateutil = "2.8.2"
