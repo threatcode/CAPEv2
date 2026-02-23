@@ -567,7 +567,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="CAPE MCP Server")
     parser.add_argument("--transport", choices=["stdio", "sse", "streamable-http", "http"], default=os.environ.get("CAPE_MCP_TRANSPORT", "stdio"), help="Transport protocol (default: stdio)")
     parser.add_argument("--host", default=os.environ.get("CAPE_MCP_HOST", "127.0.0.1"), help="Host to bind for HTTP/SSE (default: 127.0.0.1)")
-    parser.add_argument("--port", type=int, default=int(os.environ.get("CAPE_MCP_PORT", "8000")), help="Port to bind for HTTP/SSE (default: 8000)")
+    parser.add_argument("--port", type=int, default=int(os.environ.get("CAPE_MCP_PORT", "9004")), help="Port to bind for HTTP/SSE (default:  9004)")
     args = parser.parse_args()
 
     if args.transport in ["sse", "streamable-http", "http"]:
