@@ -562,4 +562,16 @@ async def verify_auth(token: str = "") -> str:
     return json.dumps({"authenticated": True, "message": "Token is valid.", "user": "Authenticated User"}, indent=2)
 
 if __name__ == "__main__":
-    mcp.run()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="CAPE MCP Server")
+    parser.add_argument("--transport", choices=["stdio", "sse", "streamable-http", "http"], default=os.environ.get("CAPE_MCP_TRANSPORT", "stdio"), help="Transport protocol (default: stdio)")
+    parser.add_argument("--host", default=os.environ.get("CAPE_MCP_HOST", "127.0.0.1"), help="Host to bind for HTTP/SSE (default: 127.0.0.1)")
+    parser.add_argument("--port", type=int, default=int(os.environ.get("CAPE_MCP_PORT", "8000")), help="Port to bind for HTTP/SSE (default: 8000)")
+    args = parser.parse_args()
+
+    if args.transport in ["sse", "streamable-http", "http"]:
+        print(f"Starting {args.transport} server on {args.host}:{args.port}", file=sys.stderr)
+        mcp.run(transport=args.transport, host=args.host, port=args.port)
+    else:
+        mcp.run(transport="stdio")

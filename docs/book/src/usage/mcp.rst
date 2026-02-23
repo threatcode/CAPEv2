@@ -78,6 +78,9 @@ Environment Variables
 *   ``CAPE_API_URL``: (Optional) The full path to your CAPE API v2 endpoint (e.g., ``http://127.0.0.1:8000/apiv2``). If not set, it defaults to the ``url`` in ``api.conf`` + ``/apiv2``.
 *   ``CAPE_API_TOKEN``: (Optional) Your API token. Recommended to set this in the **Client Configuration** (e.g. ``claude_desktop_config.json``) rather than your system's global environment variables to ensure isolation.
 *   ``CAPE_ALLOWED_SUBMISSION_DIR``: (Optional) Restricts ``submit_file`` to a specific local directory for security. Defaults to the current working directory.
+*   ``CAPE_MCP_TRANSPORT``: (Optional) The transport protocol to use (``stdio``, ``sse``, ``streamable-http``, ``http``). Defaults to ``stdio``.
+*   ``CAPE_MCP_HOST``: (Optional) Host to bind for network transports. Defaults to ``127.0.0.1``.
+*   ``CAPE_MCP_PORT``: (Optional) Port to bind for network transports. Defaults to ``8000``.
 
 Granular Tool Control (``api.conf``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -115,6 +118,7 @@ Scenario B: Remote / Shared Server (SSE)
 
 In this mode, a single MCP server instance runs continuously and accepts connections from multiple clients over the network.
 
+0.  **Execution:** Start the server using ``python3 web/mcp_server.py --transport sse``.
 1.  **Configuration:** Start the server **without** a ``CAPE_API_TOKEN`` environment variable.
 2.  **Strict Mode:** Ensure ``token_auth_enabled = yes`` is set in ``conf/api.conf``.
 3.  **Usage:** Users **must** provide their API token in the ``token`` argument for every tool call (e.g., ``submit_file(..., token="MyKey")``).
@@ -133,12 +137,44 @@ If ``token_auth_enabled = yes`` and no token is found in either location, the re
 Running the Server
 ------------------
 
-Standard execution
-~~~~~~~~~~~~~~~~~~
+Standard execution (Stdio)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
     CAPE_API_URL=http://your-cape-ip:8000/apiv2 CAPE_API_TOKEN=your_token python3 web/mcp_server.py
+
+Remote / SSE execution
+~~~~~~~~~~~~~~~~~~~~~~
+
+To run the server as a persistent service accessible over the network:
+
+.. code-block:: bash
+
+    python3 web/mcp_server.py --transport sse --port 9004
+
+Deployment behind Nginx
+~~~~~~~~~~~~~~~~~~~~~~~
+
+When running behind an Nginx reverse proxy, you **must** expose both the ``/sse`` and ``/messages`` endpoints and disable buffering to allow the event stream to function.
+
+.. code-block:: nginx
+
+    location /sse {
+        proxy_pass http://127.0.0.1:9004/sse;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 24h;
+    }
+
+    location /messages {
+        proxy_pass http://127.0.0.1:9004/messages;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_buffering off;
+    }
 
 Client Integrations
 -------------------
