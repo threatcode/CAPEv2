@@ -53,7 +53,7 @@ from lib.cuckoo.common.web_utils import (
     statistics,
     validate_task,
 )
-from mcp.filters import lean_search_filters
+
 from lib.cuckoo.core.database import Database, _Database
 from lib.cuckoo.core.data.task import (
     TASK_RECOVERED,
@@ -62,6 +62,8 @@ from lib.cuckoo.core.data.task import (
 )
 from lib.cuckoo.core.rooter import _load_socks5_operational, vpns
 
+# from mcp.filters import lean_search_filters
+lean_search_filters = {}
 try:
     import psutil
 
